@@ -21,10 +21,12 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const { nom_produit, categorie, actif } = req.query || {};
 
-      let filterParts = [];
+      const filterParts = [];
 
       if (nom_produit) {
-        filterParts.push(`FIND(LOWER("${String(nom_produit).replace(/"/g, '\\"')}"), LOWER({nom_produit}))`);
+        filterParts.push(
+          `FIND(LOWER("${String(nom_produit).replace(/"/g, '\\"')}"), LOWER({nom_produit}))`
+        );
       }
 
       if (categorie) {
@@ -35,19 +37,17 @@ export default async function handler(req, res) {
         filterParts.push(`{actif} = 1`);
       }
 
-      let filterByFormula = undefined;
+      const selectOptions = {
+        sort: [{ field: "nom_produit", direction: "asc" }],
+      };
+
       if (filterParts.length === 1) {
-        filterByFormula = filterParts[0];
+        selectOptions.filterByFormula = filterParts[0];
       } else if (filterParts.length > 1) {
-        filterByFormula = `AND(${filterParts.join(",")})`;
+        selectOptions.filterByFormula = `AND(${filterParts.join(",")})`;
       }
 
-      const records = await base("ProduitsHabituels")
-        .select({
-          filterByFormula,
-          sort: [{ field: "nom_produit", direction: "asc" }],
-        })
-        .all();
+      const records = await base("ProduitsHabituels").select(selectOptions).all();
 
       return res.status(200).json({
         success: true,
