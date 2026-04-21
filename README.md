@@ -1,1 +1,2 @@
 # max-api
+    deploy test
