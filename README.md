@@ -1,2 +1,2 @@
 # max-api
-    deploy test
+    deploy test 2
